@@ -1,0 +1,23 @@
+{
+  "name": "y",
+  "version": "1.0.0",
+  "description": "React-GraphQL-Typescrit project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonescamilla/React-GraphQL-TypeScript.git"
+  },
+  "author": "Jonathan Escamilla",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jonescamilla/React-GraphQL-TypeScript/issues"
+  },
+  "homepage": "https://github.com/jonescamilla/React-GraphQL-TypeScript#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^4.0.2"
+  }
+}
