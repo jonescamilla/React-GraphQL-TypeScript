@@ -1,7 +1,6 @@
 import 'reflect-metadata';
 import { MikroORM } from "@mikro-orm/core";
 import { __prod__ } from "./constants";
-// import { Post } from "./entities/Posts";
 import microConfig from './mikro-orm.config';
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
@@ -38,6 +37,7 @@ main().catch((err) => {
   console.error(err);
 });
 
+// import { Post } from "./entities/Posts";
 // example of how to create a post with mikro-orm
 // const post = orm.em.create(Post, {title: 'my first post'});
 // await orm.em.persistAndFlush(post);
