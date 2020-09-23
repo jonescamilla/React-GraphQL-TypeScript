@@ -11,13 +11,35 @@ export class PostResolver {
   }
   // to set the type or potentially null type-graphql has an object with options
   @Query(() => Post, {nullable: true})
-  post(@Arg('id') id: number, @Ctx() {em}: MyContext): Promise<Post | null> {
-    return em.findOne(Post, {id});
-  }
+  post(
+    @Arg('id') id: number,
+    @Ctx() {em}: MyContext
+    ): Promise<Post | null> {
+      return em.findOne(Post, {id});
+    }
+
   @Mutation(() => Post)
-  async createPost(@Arg('title') title: string, @Ctx() {em}: MyContext): Promise<Post> {
-    const post = em.create(Post, {title});
-    await em.persistAndFlush(post);
-    return post;
-  }
+  async createPost(
+    @Arg('title') title: string, 
+    @Ctx() {em}: MyContext
+    ): Promise<Post> {
+      const post = em.create(Post, {title});
+      await em.persistAndFlush(post);
+      return post
+    }
+
+  @Mutation(() => Post, {nullable: true})
+  async updatePost(
+    @Arg('id') id: number,
+    @Arg('title', () => String, { nullable: true }) title: string,
+    @Ctx() {em}: MyContext
+    ): Promise<Post | null> {
+      const post = await em.findOne(Post, {id});
+      if (!post) return null;
+      if (typeof title !== undefined) {
+        post.title = title;
+        await em.persistAndFlush(post);
+      }
+      return post;
+    }
 }
