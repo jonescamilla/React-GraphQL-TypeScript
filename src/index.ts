@@ -1,12 +1,13 @@
-import 'reflect-metadata';
+import "reflect-metadata";
 import { MikroORM } from "@mikro-orm/core";
 import { __prod__ } from "./constants";
-import microConfig from './mikro-orm.config';
-import express from 'express';
-import { ApolloServer } from 'apollo-server-express';
-import { buildSchema } from 'type-graphql';
+import microConfig from "./mikro-orm.config";
+import express from "express";
+import { ApolloServer } from "apollo-server-express";
+import { buildSchema } from "type-graphql";
 import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
+import { UserResolver } from "./resolvers/user";
 
 const main = async () => {
   // connection to the database
@@ -18,18 +19,18 @@ const main = async () => {
   const apolloServer = new ApolloServer({
     // passing in our schema
     schema: await buildSchema({
-      resolvers: [HelloResolver, PostResolver],
+      resolvers: [HelloResolver, PostResolver, UserResolver],
       // not sure why false
-      validate: false
+      validate: false,
     }),
     // context is an object that is accessible by all the resolvers
-    context: () => ({ em: orm.em })
+    context: () => ({ em: orm.em }),
   });
   // apply apollo middleware
   apolloServer.applyMiddleware({ app });
   // listen on port 4000
   app.listen(4000, () => {
-    console.log('server started on localhost: 4000');
+    console.log("server started on localhost: 4000");
   });
 };
 
