@@ -2,6 +2,7 @@ import { __prod__ } from "./constants";
 import { Post } from "./entities/Posts";
 import { MikroORM } from "@mikro-orm/core";
 import path from 'path';
+import { User } from "./entities/user";
 
 export default {
   migrations: {
@@ -11,7 +12,7 @@ export default {
     pattern: /^[\w-]+\d+\.[tj]s$/,
   },
   // array of entities
-  entities: [Post],
+  entities: [Post, User],
   dbName: 'lireddit',
   // empty is allowed for both the user and the password because postgresql are running natively
   user: '',
