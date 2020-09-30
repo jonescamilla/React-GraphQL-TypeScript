@@ -52,6 +52,16 @@ export class UserResolver {
     return em.find(User, {});
   }
 
+  // me query
+  @Query(() => User, { nullable: true })
+  async me(@Ctx() { em, req }: MyContext) {
+    // you are not logged in
+    if (!req.session.userId) return null;
+    // else fetch the user
+    const user = await em.findOne(User, { id: req.session.userId });
+    return user;
+  }
+
   @Query(() => User, { nullable: true })
   user(
     @Arg("username") username: string,
@@ -64,7 +74,7 @@ export class UserResolver {
   async register(
     // label the args how you'd like and reference the class created above
     @Arg("options") options: UserNamePasswordInput,
-    @Ctx() { em }: MyContext
+    @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
     if (options.username.length <= 2)
       return {
@@ -105,6 +115,9 @@ export class UserResolver {
           ],
         };
     }
+    // store user id session and set a cookie on the user and keep them logged in
+    req.session.userId = user.id;
+
     return { user };
   }
 
@@ -137,7 +150,7 @@ export class UserResolver {
           },
         ],
       };
-
+    // set the session id to be the user id
     req.session.userId = user.id;
 
     return { user };
