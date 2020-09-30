@@ -75,3 +75,29 @@ main().catch((err) => {
 
 // example of how to fetch for all posts with mikro-orm
 // const posts = await orm.em.find(Post, {});
+
+/*
+sessions notes
+
+// store information
+req.session.userId = user.id;
+
+{ userId: 1 } -> send this to redis
+
+// step 1
+sess: oirsentaoinoaires -> { userId: 1 }
+
+// step 2
+express-session will set a cookie on my browser ex: oairesnto39458lrsietn3oienatorisent
+
+// step 3 - when a user makes a request
+oairesnto39458lrsietn3oienatorisent -> sent to the server
+
+// step 4 - the server will decrypt the cookie
+oairesnto39458lrsietn3oienatorisent -> sess: oirsentaoinoaires
+
+// step 5 - make a request to redis
+sess: oirsentaoinoaires -> { userId: 1 }
+
+req.session
+*/
