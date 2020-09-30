@@ -1,5 +1,5 @@
 import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
-import { Field, ObjectType } from "type-graphql";
+import { Field, Int, ObjectType } from "type-graphql";
 
 // decorator of ObjectType to convert classes to graphql type with graphql-type
 @ObjectType()
@@ -7,7 +7,7 @@ import { Field, ObjectType } from "type-graphql";
 @Entity()
 export class User {
   // Field decorator exposes to graphql schema
-  @Field()
+  @Field(() => Int)
   @PrimaryKey()
   id!: number;
   // there will be a date on creation
