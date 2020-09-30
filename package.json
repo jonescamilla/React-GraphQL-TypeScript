@@ -10,7 +10,8 @@
     "start": "node dist/index.js",
     "start2": "ts-node src/index.ts",
     "create:migration": "mikro-orm migration:create",
-    "sql": "pg_ctl -D /usr/local/var/postgres start"
+    "sql": "pg_ctl -D /usr/local/var/postgres start",
+    "redis": "redis-server"
   },
   "repository": {
     "type": "git",

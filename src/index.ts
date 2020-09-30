@@ -15,7 +15,7 @@ import { UserResolver } from "./resolvers/user";
 import redis from "redis";
 import session from "express-session";
 import connectRedis from "connect-redis";
-import { MyContext } from "./types";
+// import { MyContext } from "./types";
 
 const main = async () => {
   // connection to the database
@@ -35,9 +35,10 @@ const main = async () => {
         maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
         httpOnly: true,
         // look into this setting
-        sameSite: "lax",
+        sameSite: "lax", // csrf
         secure: __prod__, // cookie only works in https
       },
+      saveUninitialized: false,
       secret: "aaroisetnarosietnaorisetnaorisent",
       resave: false,
     })
@@ -51,7 +52,7 @@ const main = async () => {
       validate: false,
     }),
     // context is an object that is accessible by all the resolvers
-    context: ({ req, res }): MyContext => ({ em: orm.em, req, res }),
+    context: ({ req, res }) => ({ em: orm.em, req, res }),
   });
   // apply apollo middleware
   apolloServer.applyMiddleware({ app });
