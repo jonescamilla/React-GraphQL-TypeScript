@@ -1,14 +1,17 @@
 import "reflect-metadata";
 import { MikroORM } from "@mikro-orm/core";
 import { __prod__ } from "./constants";
+// mikro-orm imports
 import microConfig from "./mikro-orm.config";
 import express from "express";
+// apollo and type imports
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
+// resolvers
 import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
-
+// sessions imports
 import redis from "redis";
 import session from "express-session";
 import connectRedis from "connect-redis";
@@ -48,7 +51,7 @@ const main = async () => {
       validate: false,
     }),
     // context is an object that is accessible by all the resolvers
-    context: ({req, res}): MyContext => ({ em: orm.em, req, res }),
+    context: ({ req, res }): MyContext => ({ em: orm.em, req, res }),
   });
   // apply apollo middleware
   apolloServer.applyMiddleware({ app });
@@ -58,6 +61,7 @@ const main = async () => {
   });
 };
 
+// error handler
 main().catch((err) => {
   console.error(err);
 });
