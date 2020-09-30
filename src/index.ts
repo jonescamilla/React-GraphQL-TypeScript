@@ -38,6 +38,7 @@ const main = async () => {
         sameSite: "lax", // csrf
         secure: __prod__, // cookie only works in https
       },
+      // turn off saving data that isn't initialized
       saveUninitialized: false,
       secret: "aaroisetnarosietnaorisetnaorisent",
       resave: false,
