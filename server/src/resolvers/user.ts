@@ -11,6 +11,7 @@ import {
   Query,
 } from "type-graphql";
 import argon2 from "argon2";
+import { EntityManager } from "@mikro-orm/postgresql";
 
 // a different way of doing your typing for type-graphql
 // decorate with an inputType
@@ -85,27 +86,35 @@ export class UserResolver {
           },
         ],
       };
-    if (options.password.length <= 3)
+    if (options.password.length <= 2)
       return {
         errors: [
           {
             field: "password",
-            message: "length must be greater than 3",
+            message: "length must be greater than 2",
           },
         ],
       };
     // hash the password using argon2
     const hashedPassword = await argon2.hash(options.password);
     // create the user
-    const user = em.create(User, {
-      username: options.username,
-      password: hashedPassword,
-    });
+    let user;
     try {
-      await em.persistAndFlush(user);
+      const result = await (em as EntityManager)
+        .createQueryBuilder(User)
+        .getKnexQuery()
+        .insert({
+          username: options.username,
+          password: hashedPassword,
+          created_at: new Date(),
+          updated_at: new Date(),
+        })
+        .returning("*");
+      user = result[0];
     } catch (err) {
+      console.log(err);
       // duplicate user error
-      if (err.code === "23505")
+      if (err.code === "23505") {
         return {
           errors: [
             {
@@ -114,7 +123,9 @@ export class UserResolver {
             },
           ],
         };
+      }
     }
+    console.log('user', user);
     // store user id session and set a cookie on the user and keep them logged in
     req.session.userId = user.id;
 
