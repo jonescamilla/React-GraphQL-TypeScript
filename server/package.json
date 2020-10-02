@@ -33,6 +33,7 @@
     "@mikro-orm/migrations": "^4.0.4",
     "@mikro-orm/postgresql": "^4.0.4",
     "@types/connect-redis": "^0.0.14",
+    "@types/cors": "^2.8.7",
     "@types/express": "^4.17.8",
     "@types/express-session": "^1.17.0",
     "@types/node": "^14.11.1",
