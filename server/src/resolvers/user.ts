@@ -103,16 +103,18 @@ export class UserResolver {
       const result = await (em as EntityManager)
         .createQueryBuilder(User)
         .getKnexQuery()
+        // inserting all of the data below
         .insert({
           username: options.username,
           password: hashedPassword,
           created_at: new Date(),
           updated_at: new Date(),
         })
+        // returning all
         .returning("*");
       user = result[0];
     } catch (err) {
-      // duplicate user error
+      // duplicate user error code
       if (err.code === "23505") {
         return {
           errors: [
