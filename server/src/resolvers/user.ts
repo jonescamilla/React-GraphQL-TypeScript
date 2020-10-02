@@ -112,7 +112,6 @@ export class UserResolver {
         .returning("*");
       user = result[0];
     } catch (err) {
-      console.log(err);
       // duplicate user error
       if (err.code === "23505") {
         return {
@@ -125,7 +124,6 @@ export class UserResolver {
         };
       }
     }
-    console.log('user', user);
     // store user id session and set a cookie on the user and keep them logged in
     req.session.userId = user.id;
 
