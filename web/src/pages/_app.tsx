@@ -1,10 +1,15 @@
 import { ThemeProvider, CSSReset } from "@chakra-ui/core";
 import React from "react";
 import { createClient, dedupExchange, fetchExchange, Provider } from "urql";
-import { Cache, cacheExchange, QueryInput } from "@urql/exchange-graphcache";
+import {
+  Cache,
+  cacheExchange,
+  QueryInput,
+} from "@urql/exchange-graphcache";
 import theme from "../theme";
 import {
   LoginMutation,
+  LogoutMutation,
   MeDocument,
   MeQuery,
   RegisterMutation,
@@ -59,6 +64,15 @@ const client = createClient({
               }
             );
           },
+          // logout
+          logout: (result_, _args, cache, _info) => {
+            betterUpdateQuery<LogoutMutation, MeQuery>(
+              cache,
+              { query: MeDocument },
+              result_,
+              () => ({ me: null })
+            );
+          },  
         },
       },
     }),
