@@ -1,3 +1,4 @@
+# import '../fragments/RegularUser.graphql'
 mutation Login($options: UserNamePasswordInput!) {
   login(options: $options) {
     user {
