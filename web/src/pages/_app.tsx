@@ -10,6 +10,7 @@ import {
   RegisterMutation,
 } from "../generated/graphql";
 
+// exclusively for better typing and serves no other purpose
 function betterUpdateQuery<Result, Query>(
   cache: Cache,
   qi: QueryInput,
@@ -30,24 +31,30 @@ const client = createClient({
     cacheExchange({
       updates: {
         Mutation: {
-          login: (_result, _args, cache, _info) => {
+          // login
+          login: (result_, _args, cache, _info) => {
             betterUpdateQuery<LoginMutation, MeQuery>(
               cache,
               { query: MeDocument },
-              _result,
+              result_,
               (result, query) => {
+                // if there was an error return the current query
                 if (result.login.errors) return query;
+                // else return the user
                 else return { me: result.login.user };
               }
             );
           },
-          register: (_result, _args, cache, _info) => {
+          // register
+          register: (result_, _args, cache, _info) => {
             betterUpdateQuery<RegisterMutation, MeQuery>(
               cache,
               { query: MeDocument },
-              _result,
+              result_,
               (result, query) => {
+                // if there was an error return the current query
                 if (result.register.errors) return query;
+                // else return the user
                 else return { me: result.register.user };
               }
             );
