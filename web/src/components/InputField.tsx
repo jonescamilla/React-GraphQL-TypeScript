@@ -5,7 +5,6 @@ import {
   Input,
 } from "@chakra-ui/core";
 import { useField } from "formik";
-import { format } from "path";
 import React, { InputHTMLAttributes } from "react";
 
 type InputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
