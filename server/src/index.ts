@@ -16,7 +16,7 @@ import redis from "redis";
 import session from "express-session";
 import connectRedis from "connect-redis";
 // import { MyContext } from "./types";
-import cors from 'cors';
+import cors from "cors";
 
 const main = async () => {
   // connection to the database
@@ -28,10 +28,12 @@ const main = async () => {
   const RedisStore = connectRedis(session);
   const redisClient = redis.createClient();
 
-  app.use(cors({
-    origin: 'http://localhost:3000',
-    credentials: true,
-  }));
+  app.use(
+    cors({
+      origin: "http://localhost:3000",
+      credentials: true,
+    })
+  );
   // run the session middleware before the apollo middleware because it will be used inside apollo
   app.use(
     session({
@@ -62,7 +64,7 @@ const main = async () => {
     context: ({ req, res }) => ({ em: orm.em, req, res }),
   });
   // apply apollo middleware
-  apolloServer.applyMiddleware({ app, cors: false});
+  apolloServer.applyMiddleware({ app, cors: false });
   // listen on port 4000
   app.listen(4000, () => {
     console.log("server started on localhost: 4000");

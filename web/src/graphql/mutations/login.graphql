@@ -1,7 +1,7 @@
-mutation Login($options: UserNamePasswordInput!){
+mutation Login($options: UserNamePasswordInput!) {
   login(options: $options) {
     user {
-     ...RegularUser
+      ...RegularUser
     }
     errors {
       field
