@@ -1,6 +1,6 @@
 import { EntityManager } from "@mikro-orm/postgresql";
 import argon2 from "argon2";
-import { validateRegister } from "src/utils/validateRegister";
+import { validateRegister } from "../utils/validateRegister";
 import {
   Arg,
   Ctx,
@@ -13,7 +13,7 @@ import {
 import { COOKIE_NAME } from "../constants";
 import { User } from "../entities/User";
 import { MyContext } from "../types";
-import { UserNamePasswordInput } from "./UserNamePasswordInput";
+import { UsernamePasswordInput } from "./UsernamePasswordInput";
 
 // ObjectTypes are returnable unlike InputTypes that are argument/parameters
 @ObjectType()
@@ -40,7 +40,7 @@ class UserResponse {
 export class UserResolver {
   // forgot password
   @Mutation(() => Boolean)
-  async forgotPassword(@Arg("email") email: string, @Ctx() { req }: MyContext) {
+  async forgotPassword(@Arg("email") _email: string, @Ctx() { /* req */}: MyContext) {
     // const user = await email.findOne(User, { email });
     return true;
   }
@@ -74,7 +74,7 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async register(
     // label the args how you'd like and reference the class created above
-    @Arg("options") options: UserNamePasswordInput,
+    @Arg("options") options: UsernamePasswordInput,
     @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
     // abstracted error/register validation
