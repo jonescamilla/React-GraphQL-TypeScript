@@ -8,12 +8,14 @@ import {
   Mutation,
   ObjectType,
   Query,
-  Resolver
+  Resolver,
 } from "type-graphql";
-import { COOKIE_NAME } from "../constants";
+import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constants";
 import { User } from "../entities/User";
 import { MyContext } from "../types";
 import { UsernamePasswordInput } from "./UsernamePasswordInput";
+import { sendEmail } from "../utils/sendEmail";
+import { v4 } from "uuid";
 
 // ObjectTypes are returnable unlike InputTypes that are argument/parameters
 @ObjectType()
@@ -40,8 +42,31 @@ class UserResponse {
 export class UserResolver {
   // forgot password
   @Mutation(() => Boolean)
-  async forgotPassword(@Arg("email") _email: string, @Ctx() { /* req */}: MyContext) {
-    // const user = await email.findOne(User, { email });
+  async forgotPassword(
+    @Arg("email") email: string,
+    @Ctx() { em, redis }: MyContext
+  ) {
+    const user = await em.findOne(User, { email });
+    // if no user then the email is not in db
+    if (!user) return true;
+    // creating a token with uuid
+    const token = v4();
+    // storing in redis
+    await redis.set(
+      FORGET_PASSWORD_PREFIX + token,
+      user.id,
+      "ex",
+      // up to 3 days to use forget password
+      1000 * 60 * 60 * 24 * 3
+    );
+
+    await sendEmail(
+      email,
+      // when the user changes the password sends us this token back
+      // we will look up the value to get the user id
+      `<a href="http://localhost:3000/change-password/${token}">reset password</a>`
+    );
+
     return true;
   }
 
@@ -119,7 +144,7 @@ export class UserResolver {
     return { user };
   }
 
-  // login mutation with inline login validation 
+  // login mutation with inline login validation
   @Mutation(() => UserResponse)
   async login(
     @Arg("usernameOrEmail") usernameOrEmail: string,
