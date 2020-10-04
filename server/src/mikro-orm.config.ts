@@ -1,6 +1,6 @@
-import { __prod__ } from "./constants";
 import { MikroORM } from "@mikro-orm/core";
 import path from "path";
+import { __prod__ } from "./constants";
 // entities imports
 import { Post } from "./entities/Post";
 import { User } from "./entities/User";
