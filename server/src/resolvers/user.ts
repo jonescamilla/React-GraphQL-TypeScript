@@ -1,29 +1,19 @@
-import { User } from "../entities/User";
-import { MyContext } from "../types";
+import { EntityManager } from "@mikro-orm/postgresql";
+import argon2 from "argon2";
+import { validateRegister } from "src/utils/validateRegister";
 import {
   Arg,
   Ctx,
   Field,
-  InputType,
   Mutation,
   ObjectType,
-  Resolver,
   Query,
+  Resolver
 } from "type-graphql";
-import argon2 from "argon2";
-import { EntityManager } from "@mikro-orm/postgresql";
 import { COOKIE_NAME } from "../constants";
-
-// a different way of doing your typing for type-graphql
-// decorate with an inputType
-@InputType()
-class UserNamePasswordInput {
-  // add necessary fields
-  @Field()
-  username: string;
-  @Field()
-  password: string;
-}
+import { User } from "../entities/User";
+import { MyContext } from "../types";
+import { UserNamePasswordInput } from "./UserNamePasswordInput";
 
 // ObjectTypes are returnable unlike InputTypes that are argument/parameters
 @ObjectType()
@@ -48,6 +38,13 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
+  // forgot password
+  @Mutation(() => Boolean)
+  async forgotPassword(@Arg("email") email: string, @Ctx() { req }: MyContext) {
+    // const user = await email.findOne(User, { email });
+    return true;
+  }
+
   // Query for all users
   @Query(() => [User])
   users(@Ctx() { em }: MyContext): Promise<User[]> {
@@ -64,6 +61,7 @@ export class UserResolver {
     return user;
   }
 
+  // individual user query
   @Query(() => User, { nullable: true })
   user(
     @Arg("username") username: string,
@@ -72,30 +70,17 @@ export class UserResolver {
     return em.findOne(User, { username });
   }
 
+  // register query with abstracted validation
   @Mutation(() => UserResponse)
   async register(
     // label the args how you'd like and reference the class created above
     @Arg("options") options: UserNamePasswordInput,
     @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
-    if (options.username.length <= 2)
-      return {
-        errors: [
-          {
-            field: "username",
-            message: "length must be greater than 2",
-          },
-        ],
-      };
-    if (options.password.length <= 2)
-      return {
-        errors: [
-          {
-            field: "password",
-            message: "length must be greater than 2",
-          },
-        ],
-      };
+    // abstracted error/register validation
+    const errors = validateRegister(options);
+    // if there were errors in validation then return those errors
+    if (errors) return { errors };
     // hash the password using argon2
     const hashedPassword = await argon2.hash(options.password);
     // create the user
@@ -106,6 +91,7 @@ export class UserResolver {
         .getKnexQuery()
         // inserting all of the data below
         .insert({
+          email: options.email,
           username: options.username,
           password: hashedPassword,
           created_at: new Date(),
@@ -133,13 +119,20 @@ export class UserResolver {
     return { user };
   }
 
+  // login mutation with inline login validation 
   @Mutation(() => UserResponse)
   async login(
-    @Arg("options") options: UserNamePasswordInput,
+    @Arg("usernameOrEmail") usernameOrEmail: string,
+    @Arg("password") password: string,
     @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
     // query for the user in the db
-    const user = await em.findOne(User, { username: options.username });
+    const user = await em.findOne(
+      User,
+      usernameOrEmail.includes("@")
+        ? { email: usernameOrEmail }
+        : { username: usernameOrEmail }
+    );
     // if the user doesn't exist then return an error
     if (!user)
       return {
@@ -151,7 +144,7 @@ export class UserResolver {
         ],
       };
     // receive the validation (boolean)from argon2 on the user's password
-    const valid = await argon2.verify(user.password, options.password);
+    const valid = await argon2.verify(user.password, password);
     // if the validation returned false then return an error
     if (!valid)
       return {
@@ -168,6 +161,7 @@ export class UserResolver {
     return { user };
   }
 
+  // logout out mutation
   @Mutation(() => Boolean)
   logout(@Ctx() { req, res }: MyContext) {
     return new Promise((resolve) =>
