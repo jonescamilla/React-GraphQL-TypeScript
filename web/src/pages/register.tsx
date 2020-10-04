@@ -18,9 +18,9 @@ const Register: React.FC<registerProps> = ({}) => {
   return (
     <Wrapper variant="small">
       <Formik
-        initialValues={{ username: "", password: "" }}
+        initialValues={{ email: "", username: "", password: "" }}
         onSubmit={async (values, { setErrors }) => {
-          const response = await register(values);
+          const response = await register({ options: values });
           // if there is an error use the error map util to format for formik
           if (response.data?.register.errors) {
             setErrors(toErrorMap(response.data.register.errors));
@@ -37,6 +37,9 @@ const Register: React.FC<registerProps> = ({}) => {
               placeholder="username"
               label="Username"
             />
+            <Box mt={4}>
+              <InputField name="email" placeholder="email" label="Email" />
+            </Box>
             <Box mt={4}>
               <InputField
                 name="password"
@@ -59,5 +62,5 @@ const Register: React.FC<registerProps> = ({}) => {
     </Wrapper>
   );
 };
-// wrapped with urql client in order to 
+// wrapped with urql client in order to
 export default withUrqlClient(createUrqlClient)(Register);
