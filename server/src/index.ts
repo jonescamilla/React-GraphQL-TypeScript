@@ -1,22 +1,22 @@
-import "reflect-metadata";
 import { MikroORM } from "@mikro-orm/core";
+// apollo and type imports
+import { ApolloServer } from "apollo-server-express";
+import connectRedis from "connect-redis";
+// import { MyContext } from "./types";
+import cors from "cors";
+import express from "express";
+import session from "express-session";
+// sessions imports
+import redis from "redis";
+import "reflect-metadata";
+import { buildSchema } from "type-graphql";
 import { COOKIE_NAME, __prod__ } from "./constants";
 // mikro-orm imports
 import microConfig from "./mikro-orm.config";
-import express from "express";
-// apollo and type imports
-import { ApolloServer } from "apollo-server-express";
-import { buildSchema } from "type-graphql";
 // resolvers
 import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
-// sessions imports
-import redis from "redis";
-import session from "express-session";
-import connectRedis from "connect-redis";
-// import { MyContext } from "./types";
-import cors from "cors";
 
 const main = async () => {
   // connection to the database
