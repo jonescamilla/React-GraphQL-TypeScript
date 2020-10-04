@@ -7,7 +7,7 @@ import cors from "cors";
 import express from "express";
 import session from "express-session";
 // sessions imports
-import redis from "redis";
+import Redis from "ioredis";
 import "reflect-metadata";
 import { buildSchema } from "type-graphql";
 import { COOKIE_NAME, __prod__ } from "./constants";
@@ -26,8 +26,8 @@ const main = async () => {
   const app = express();
   // redis implementation
   const RedisStore = connectRedis(session);
-  const redisClient = redis.createClient();
-
+  const redis = new Redis();
+  
   app.use(
     cors({
       origin: "http://localhost:3000",
@@ -38,7 +38,7 @@ const main = async () => {
   app.use(
     session({
       name: COOKIE_NAME,
-      store: new RedisStore({ client: redisClient, disableTouch: true }),
+      store: new RedisStore({ client: redis, disableTouch: true }),
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
         httpOnly: true,
@@ -61,7 +61,7 @@ const main = async () => {
       validate: false,
     }),
     // context is an object that is accessible by all the resolvers
-    context: ({ req, res }) => ({ em: orm.em, req, res }),
+    context: ({ req, res }) => ({ em: orm.em, req, res, redis }),
   });
   // apply apollo middleware
   apolloServer.applyMiddleware({ app, cors: false });
