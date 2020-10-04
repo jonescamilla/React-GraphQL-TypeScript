@@ -138,7 +138,7 @@ export class UserResolver {
       return {
         errors: [
           {
-            field: "username",
+            field: "usernameOrEmail",
             message: "that username doesn't exist",
           },
         ],
@@ -151,7 +151,7 @@ export class UserResolver {
         errors: [
           {
             field: "password",
-            message: "invalid login",
+            message: "invalid password",
           },
         ],
       };
