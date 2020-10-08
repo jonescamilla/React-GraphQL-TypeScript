@@ -40,36 +40,6 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
-  // forgot password
-  @Mutation(() => Boolean)
-  async forgotPassword(
-    @Arg("email") email: string,
-    @Ctx() { em, redis }: MyContext
-  ) {
-    const user = await em.findOne(User, { email });
-    // if no user then the email is not in db
-    if (!user) return true;
-    // creating a token with uuid
-    const token = v4();
-    // storing in redis
-    await redis.set(
-      FORGET_PASSWORD_PREFIX + token,
-      user.id,
-      "ex",
-      // up to 3 days to use forget password
-      1000 * 60 * 60 * 24 * 3
-    );
-
-    await sendEmail(
-      email,
-      // when the user changes the password sends us this token back
-      // we will look up the value to get the user id
-      `<a href="http://localhost:3000/change-password/${token}">reset password</a>`
-    );
-
-    return true;
-  }
-
   // Query for all users
   @Query(() => [User])
   users(@Ctx() { em }: MyContext): Promise<User[]> {
@@ -129,12 +99,7 @@ export class UserResolver {
       // duplicate user error code
       if (err.code === "23505") {
         return {
-          errors: [
-            {
-              field: "username",
-              message: "username already taken",
-            },
-          ],
+          errors: [{ field: "username", message: "username already taken" }],
         };
       }
     }
@@ -162,10 +127,7 @@ export class UserResolver {
     if (!user)
       return {
         errors: [
-          {
-            field: "usernameOrEmail",
-            message: "that username doesn't exist",
-          },
+          { field: "usernameOrEmail", message: "that username doesn't exist" },
         ],
       };
     // receive the validation (boolean)from argon2 on the user's password
@@ -202,5 +164,71 @@ export class UserResolver {
         resolve(true);
       })
     );
+  }
+  // forgot password
+  @Mutation(() => Boolean)
+  async forgotPassword(
+    @Arg("email") email: string,
+    @Ctx() { em, redis }: MyContext
+  ) {
+    const user = await em.findOne(User, { email });
+    // if no user then the email is not in db
+    if (!user) return true;
+    // creating a token with uuid
+    const token = v4();
+    // storing in redis
+    await redis.set(
+      FORGET_PASSWORD_PREFIX + token,
+      user.id,
+      "ex",
+      // up to 3 days to use forget password
+      1000 * 60 * 60 * 24 * 3
+    );
+
+    await sendEmail(
+      email,
+      // when the user changes the password sends us this token back
+      // we will look up the value to get the user id
+      `<a href="http://localhost:3000/change-password/${token}">reset password</a>`
+    );
+
+    return true;
+  }
+  
+  // change password 
+  @Mutation(() => UserResponse)
+  async changePassword(
+    @Arg("token") token: string,
+    @Arg("newPassword") newPassword: string,
+    @Ctx() { em, redis, req }: MyContext
+  ): Promise<UserResponse> {
+    // password validation
+    if (newPassword.length <= 2) {
+      return {
+        errors: [
+          { field: "newPassword", message: "length must be greater than 2" },
+        ],
+      };
+    }
+    // token validation through redis
+    const userId = await redis.get(FORGET_PASSWORD_PREFIX + token);
+    // if there is no user then the token was either tampered with or the token expired
+    if (!userId) {
+      return { errors: [{ field: "token", message: "expired token" }] };
+    }
+    // get the user from the db to modify them
+    const user = await em.findOne(User, { id: parseInt(userId) });
+    // if the user doesn't come back then the user must no longer exist
+    if (!user) {
+      return { errors: [{ field: "token", message: "user no longer exists" }] };
+    }
+    // once all the check have passed you can set the user's password to be the new hashed password
+    user.password = await argon2.hash(newPassword);
+    // set the user in the db
+    await em.persistAndFlush(user);
+    // log in user after change password
+    req.session.userId = user.id;
+
+    return { user };
   }
 }
