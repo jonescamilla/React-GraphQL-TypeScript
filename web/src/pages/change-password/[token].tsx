@@ -1,12 +1,9 @@
-import { Box, Button } from "@chakra-ui/core";
-import { query } from "@urql/exchange-graphcache";
-import { Formik, Form } from "formik";
+import { Button } from "@chakra-ui/core";
+import { Form, Formik } from "formik";
 import { NextPage } from "next";
 import React from "react";
 import InputField from "../../components/InputField";
 import Wrapper from "../../components/Wrapper";
-import { toErrorMap } from "../../utils/toErrorMap";
-import login from "../login";
 
 interface tokenProps {
   token: string;

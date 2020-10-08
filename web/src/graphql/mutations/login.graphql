@@ -1,12 +1,6 @@
-# import '../fragments/RegularUser.graphql'
+# import '../fragments/RegularUserResponse.graphql'
 mutation Login($usernameOrEmail: String!, $password: String!) {
   login(usernameOrEmail: $usernameOrEmail, password: $password) {
-    user {
-      ...RegularUser
-    }
-    errors {
-      field
-      message
-    }
+    ...RegularUserResponse
   }
 }

@@ -1,12 +1,6 @@
-# import '../fragments/RegularUser.graphql'
+# import '../fragments/RegularUserResponse.graphql'
 mutation Register($options: UsernamePasswordInput!) {
   register(options: $options) {
-    user {
-      ...RegularUser
-    }
-    errors {
-      field
-      message
-    }
+    ...RegularUserResponse
   }
 }
