@@ -1,16 +1,16 @@
-import { Box, Button, Flex, Link } from "@chakra-ui/core";
-import { Form, Formik } from "formik";
-import { NextPage } from "next";
-import { withUrqlClient } from "next-urql";
-import { useRouter } from "next/router";
-import React from "react";
-import { useState } from "react";
-import InputField from "../../components/InputField";
-import Wrapper from "../../components/Wrapper";
-import { useChangePasswordMutation } from "../../generated/graphql";
-import { createUrqlClient } from "../../utils/createUrqlClient";
-import { toErrorMap } from "../../utils/toErrorMap";
-import NextLink from "next/link";
+import { Box, Button, Flex, Link } from '@chakra-ui/core';
+import { Form, Formik } from 'formik';
+import { NextPage } from 'next';
+import { withUrqlClient } from 'next-urql';
+import { useRouter } from 'next/router';
+import React from 'react';
+import { useState } from 'react';
+import InputField from '../../components/InputField';
+import Wrapper from '../../components/Wrapper';
+import { useChangePasswordMutation } from '../../generated/graphql';
+import { createUrqlClient } from '../../utils/createUrqlClient';
+import { toErrorMap } from '../../utils/toErrorMap';
+import NextLink from 'next/link';
 
 interface tokenProps {
   token: string;
@@ -19,11 +19,11 @@ interface tokenProps {
 const ChangePassword: NextPage<tokenProps> = ({ token }) => {
   const router = useRouter();
   const [, changePassword] = useChangePasswordMutation();
-  const [tokenError, setTokenError] = useState("");
+  const [tokenError, setTokenError] = useState('');
   return (
     <Wrapper variant="small">
       <Formik
-        initialValues={{ newPassword: "" }}
+        initialValues={{ newPassword: '' }}
         onSubmit={async (values, { setErrors }) => {
           const response = await changePassword({
             token,
@@ -32,14 +32,14 @@ const ChangePassword: NextPage<tokenProps> = ({ token }) => {
           // if there is an error use custom error map to handle token errors
           if (response.data?.changePassword.errors) {
             const errorMap = toErrorMap(response.data.changePassword.errors);
-            if ("token" in errorMap) {
+            if ('token' in errorMap) {
               // pass in the token error
               setTokenError(errorMap.token);
             }
             setErrors(errorMap);
             // if the user exits then redirect
           } else if (response.data?.changePassword.user) {
-            router.push("/");
+            router.push('/');
           }
         }}
       >
@@ -52,7 +52,7 @@ const ChangePassword: NextPage<tokenProps> = ({ token }) => {
               type="password"
             />
             {tokenError ? (
-              <Flex justify='space-between'>
+              <Flex justify="space-between">
                 <Box mr={2} color="red.500">
                   {tokenError}
                 </Box>
