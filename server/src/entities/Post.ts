@@ -1,6 +1,11 @@
-import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 import { Field, ObjectType } from 'type-graphql';
-
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 // decorator of ObjectType to convert classes to graphql type with graphql-type
 @ObjectType()
 // entity decorator
@@ -9,18 +14,20 @@ export class Post {
   // Field decorator exposes to graphql schema
   // the post will have an id
   @Field()
-  @PrimaryKey()
+  @PrimaryGeneratedColumn()
   id!: number;
   // there will be a date on creation
+  // the @CreateDateColumn will handle setting the date at creation
   @Field(() => String)
-  @Property({ type: 'date' })
-  createdAt = new Date();
+  @CreateDateColumn()
+  createdAt: Date;
   // date on update
+  // the @UpdateDateColumn will handle updating the date when modified
   @Field(() => String)
-  @Property({ type: 'date', onUpdate: () => new Date() })
-  updatedAt = new Date();
+  @UpdateDateColumn()
+  updatedAt: Date;
   // && title
   @Field()
-  @Property({ type: 'text' })
+  @Column()
   title!: string;
 }
