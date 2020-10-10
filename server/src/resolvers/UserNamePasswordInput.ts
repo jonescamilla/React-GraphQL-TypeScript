@@ -1,4 +1,4 @@
-import { Field, InputType } from "type-graphql";
+import { Field, InputType } from 'type-graphql';
 
 // a different way of doing your typing for type-graphql
 // decorate with an inputType

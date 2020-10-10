@@ -1,24 +1,34 @@
-import { MikroORM } from "@mikro-orm/core";
+import { MikroORM } from '@mikro-orm/core';
 // apollo and type imports
-import { ApolloServer } from "apollo-server-express";
-import connectRedis from "connect-redis";
-// import { MyContext } from "./types";
-import cors from "cors";
-import express from "express";
-import session from "express-session";
+import { ApolloServer } from 'apollo-server-express';
+import connectRedis from 'connect-redis';
+// import { MyContext } from './types';
+import cors from 'cors';
+import express from 'express';
+import session from 'express-session';
 // sessions imports
-import Redis from "ioredis";
-import "reflect-metadata";
-import { buildSchema } from "type-graphql";
-import { COOKIE_NAME, __prod__ } from "./constants";
+import Redis from 'ioredis';
+import 'reflect-metadata';
+import { buildSchema } from 'type-graphql';
+import { COOKIE_NAME, __prod__ } from './constants';
 // mikro-orm imports
-import microConfig from "./mikro-orm.config";
+import microConfig from './mikro-orm.config';
 // resolvers
-import { HelloResolver } from "./resolvers/hello";
-import { PostResolver } from "./resolvers/post";
-import { UserResolver } from "./resolvers/user";
+import { HelloResolver } from './resolvers/hello';
+import { PostResolver } from './resolvers/post';
+import { UserResolver } from './resolvers/user';
+// typeorm
+import { createConnection } from 'typeorm';
 
 const main = async () => {
+  const conn = await createConnection({
+    type: 'postgres',
+    database: 'lireddit2',
+    username: 'postgres',
+    password: 'postgres',
+    logging: true,
+    synchronize: true,
+  });
   // connection to the database
   const orm = await MikroORM.init(microConfig);
   await orm.getMigrator().up();
@@ -27,10 +37,10 @@ const main = async () => {
   // redis implementation
   const RedisStore = connectRedis(session);
   const redis = new Redis();
-  
+
   app.use(
     cors({
-      origin: "http://localhost:3000",
+      origin: 'http://localhost:3000',
       credentials: true,
     })
   );
@@ -43,12 +53,12 @@ const main = async () => {
         maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
         httpOnly: true,
         // look into this setting
-        sameSite: "lax", // csrf
+        sameSite: 'lax', // csrf
         secure: __prod__, // cookie only works in https
       },
       // turn off saving data that isn't initialized
       saveUninitialized: false,
-      secret: "aaroisetnarosietnaorisetnaorisent",
+      secret: 'aaroisetnarosietnaorisetnaorisent',
       resave: false,
     })
   );
@@ -67,7 +77,7 @@ const main = async () => {
   apolloServer.applyMiddleware({ app, cors: false });
   // listen on port 4000
   app.listen(4000, () => {
-    console.log("server started on localhost: 4000");
+    console.log('server started on localhost: 4000');
   });
 };
 
@@ -76,7 +86,7 @@ main().catch((err) => {
   console.error(err);
 });
 
-// import { Post } from "./entities/Posts";
+// import { Post } from './entities/Posts';
 // example of how to create a post with mikro-orm
 // const post = orm.em.create(Post, {title: 'my first post'});
 // await orm.em.persistAndFlush(post);

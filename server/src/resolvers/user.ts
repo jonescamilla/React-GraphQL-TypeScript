@@ -1,6 +1,6 @@
-import { EntityManager } from "@mikro-orm/postgresql";
-import argon2 from "argon2";
-import { validateRegister } from "../utils/validateRegister";
+import { EntityManager } from '@mikro-orm/postgresql';
+import argon2 from 'argon2';
+import { validateRegister } from '../utils/validateRegister';
 import {
   Arg,
   Ctx,
@@ -9,13 +9,13 @@ import {
   ObjectType,
   Query,
   Resolver,
-} from "type-graphql";
-import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constants";
-import { User } from "../entities/User";
-import { MyContext } from "../types";
-import { UsernamePasswordInput } from "./UsernamePasswordInput";
-import { sendEmail } from "../utils/sendEmail";
-import { v4 } from "uuid";
+} from 'type-graphql';
+import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from '../constants';
+import { User } from '../entities/User';
+import { MyContext } from '../types';
+import { UsernamePasswordInput } from './UsernamePasswordInput';
+import { sendEmail } from '../utils/sendEmail';
+import { v4 } from 'uuid';
 
 // ObjectTypes are returnable unlike InputTypes that are argument/parameters
 @ObjectType()
@@ -59,7 +59,7 @@ export class UserResolver {
   // individual user query
   @Query(() => User, { nullable: true })
   user(
-    @Arg("username") username: string,
+    @Arg('username') username: string,
     @Ctx() { em }: MyContext
   ): Promise<User | null> {
     return em.findOne(User, { username });
@@ -69,7 +69,7 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async register(
     // label the args how you'd like and reference the class created above
-    @Arg("options") options: UsernamePasswordInput,
+    @Arg('options') options: UsernamePasswordInput,
     @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
     // abstracted error/register validation
@@ -93,13 +93,13 @@ export class UserResolver {
           updated_at: new Date(),
         })
         // returning all
-        .returning("*");
+        .returning('*');
       user = result[0];
     } catch (err) {
       // duplicate user error code
-      if (err.code === "23505") {
+      if (err.code === '23505') {
         return {
-          errors: [{ field: "username", message: "username already taken" }],
+          errors: [{ field: 'username', message: 'username already taken' }],
         };
       }
     }
@@ -112,14 +112,14 @@ export class UserResolver {
   // login mutation with inline login validation
   @Mutation(() => UserResponse)
   async login(
-    @Arg("usernameOrEmail") usernameOrEmail: string,
-    @Arg("password") password: string,
+    @Arg('usernameOrEmail') usernameOrEmail: string,
+    @Arg('password') password: string,
     @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
     // query for the user in the db
     const user = await em.findOne(
       User,
-      usernameOrEmail.includes("@")
+      usernameOrEmail.includes('@')
         ? { email: usernameOrEmail }
         : { username: usernameOrEmail }
     );
@@ -127,7 +127,7 @@ export class UserResolver {
     if (!user)
       return {
         errors: [
-          { field: "usernameOrEmail", message: "that username doesn't exist" },
+          { field: 'usernameOrEmail', message: "that username doesn't exist" },
         ],
       };
     // receive the validation (boolean)from argon2 on the user's password
@@ -137,8 +137,8 @@ export class UserResolver {
       return {
         errors: [
           {
-            field: "password",
-            message: "invalid password",
+            field: 'password',
+            message: 'invalid password',
           },
         ],
       };
@@ -168,7 +168,7 @@ export class UserResolver {
   // forgot password
   @Mutation(() => Boolean)
   async forgotPassword(
-    @Arg("email") email: string,
+    @Arg('email') email: string,
     @Ctx() { em, redis }: MyContext
   ) {
     const user = await em.findOne(User, { email });
@@ -180,7 +180,7 @@ export class UserResolver {
     await redis.set(
       FORGET_PASSWORD_PREFIX + token,
       user.id,
-      "ex",
+      'ex',
       // up to 3 days to use forget password
       1000 * 60 * 60 * 24 * 3
     );
@@ -194,19 +194,19 @@ export class UserResolver {
 
     return true;
   }
-  
-  // change password 
+
+  // change password
   @Mutation(() => UserResponse)
   async changePassword(
-    @Arg("token") token: string,
-    @Arg("newPassword") newPassword: string,
+    @Arg('token') token: string,
+    @Arg('newPassword') newPassword: string,
     @Ctx() { em, redis, req }: MyContext
   ): Promise<UserResponse> {
     // password validation
     if (newPassword.length <= 2) {
       return {
         errors: [
-          { field: "newPassword", message: "length must be greater than 2" },
+          { field: 'newPassword', message: 'length must be greater than 2' },
         ],
       };
     }
@@ -214,13 +214,13 @@ export class UserResolver {
     const userId = await redis.get(FORGET_PASSWORD_PREFIX + token);
     // if there is no user then the token was either tampered with or the token expired
     if (!userId) {
-      return { errors: [{ field: "token", message: "expired token" }] };
+      return { errors: [{ field: 'token', message: 'expired token' }] };
     }
     // get the user from the db to modify them
     const user = await em.findOne(User, { id: parseInt(userId) });
     // if the user doesn't come back then the user must no longer exist
     if (!user) {
-      return { errors: [{ field: "token", message: "user no longer exists" }] };
+      return { errors: [{ field: 'token', message: 'user no longer exists' }] };
     }
     // once all the check have passed you can set the user's password to be the new hashed password
     user.password = await argon2.hash(newPassword);
