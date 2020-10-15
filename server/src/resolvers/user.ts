@@ -123,9 +123,7 @@ export class UserResolver {
     // if the user doesn't exist then return an error
     if (!user)
       return {
-        errors: [
-          { field: 'usernameOrEmail', message: "invalid user" },
-        ],
+        errors: [{ field: 'usernameOrEmail', message: 'invalid user' }],
       };
     // receive the validation (boolean)from argon2 on the user's password
     const valid = await argon2.verify(user.password, password);

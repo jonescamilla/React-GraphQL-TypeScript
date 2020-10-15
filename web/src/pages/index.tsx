@@ -9,7 +9,7 @@ const index = () => {
   const [{ data }] = usePostsQuery();
   return (
     <Layout>
-      <NextLink href='/create-post'>
+      <NextLink href="/create-post">
         <Link>create post</Link>
       </NextLink>
       <br />

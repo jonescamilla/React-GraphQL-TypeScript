@@ -18,7 +18,7 @@ import { Post } from './Post';
 // extends base entity allows calls to the class to auto refer to the primary generated column
 export class User extends BaseEntity {
   // Field decorator exposes to graphql schema
-  @Field(_type => Int)
+  @Field((_type) => Int)
   @PrimaryGeneratedColumn()
   id!: number;
   // there will be a date on creation
@@ -41,7 +41,7 @@ export class User extends BaseEntity {
   @Column()
   password!: string;
   // expose and a one to many with an arry of posts
-  @Field(_type => [Post])
+  @Field((_type) => [Post])
   @OneToMany(() => Post, (post) => post.creatorId)
   posts: Post[];
 }

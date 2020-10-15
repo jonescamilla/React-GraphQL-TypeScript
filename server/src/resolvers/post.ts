@@ -43,7 +43,7 @@ export class PostResolver {
     return Post.create({
       ...input,
       creatorId: req.session.userId,
-    }).save(); 
+    }).save();
   }
 
   @Mutation(() => Post, { nullable: true })
