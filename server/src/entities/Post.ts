@@ -1,19 +1,20 @@
-import { Field, ObjectType } from 'type-graphql';
+import { Field, Int, ObjectType } from 'type-graphql';
 import {
   Column,
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  BaseEntity,
 } from 'typeorm';
 // decorator of ObjectType to convert classes to graphql type with graphql-type
 @ObjectType()
 // entity decorator
 @Entity()
-export class Post {
+export class Post extends BaseEntity {
   // Field decorator exposes to graphql schema
   // the post will have an id
-  @Field()
+  @Field(() => Int)
   @PrimaryGeneratedColumn()
   id!: number;
   // there will be a date on creation
