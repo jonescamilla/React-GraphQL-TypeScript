@@ -92,8 +92,7 @@ export class UserResolver {
         // returning all
         .returning('*')
         .execute();
-      console.log(result);
-      user = result.raw;
+      user = result.raw[0];
     } catch (err) {
       // duplicate user error code
       if (err.code === '23505') {
