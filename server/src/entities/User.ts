@@ -1,5 +1,6 @@
 import { Field, Int, ObjectType } from 'type-graphql';
 import {
+  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
@@ -11,7 +12,8 @@ import {
 @ObjectType()
 // entity decorator
 @Entity()
-export class User {
+// extends base entity allows calls to the class to auto refer to the primary generated column
+export class User extends BaseEntity {
   // Field decorator exposes to graphql schema
   @Field(() => Int)
   @PrimaryGeneratedColumn()
