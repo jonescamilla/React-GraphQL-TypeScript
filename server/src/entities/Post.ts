@@ -6,7 +6,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   BaseEntity,
+  ManyToOne,
 } from 'typeorm';
+import { User } from './User';
 // decorator of ObjectType to convert classes to graphql type with graphql-type
 @ObjectType()
 // entity decorator
@@ -31,4 +33,20 @@ export class Post extends BaseEntity {
   @Field()
   @Column()
   title!: string;
+  // expose and add a created Id to the creator
+  @Field()
+  @Column()
+  creatorId: number;
+  // expose and add a many to one of a user
+  @Field()
+  @ManyToOne(() => User, (user) => user.posts)
+  creator: User;
+
+  @Field()
+  @Column()
+  text!: string;
+
+  @Field()
+  @Column({ type: 'int', default: 0 })
+  points!: number;
 }
