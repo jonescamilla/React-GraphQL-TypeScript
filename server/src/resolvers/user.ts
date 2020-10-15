@@ -124,7 +124,7 @@ export class UserResolver {
     if (!user)
       return {
         errors: [
-          { field: 'usernameOrEmail', message: "that username doesn't exist" },
+          { field: 'usernameOrEmail', message: "invalid user" },
         ],
       };
     // receive the validation (boolean)from argon2 on the user's password
