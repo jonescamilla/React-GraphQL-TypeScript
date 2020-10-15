@@ -42,7 +42,7 @@ export class PostResolver {
   ): Promise<Post> {
     return Post.create({
       ...input,
-      creatorId: parseInt(req.session.id),
+      creatorId: req.session.userId,
     }).save(); 
   }
 
