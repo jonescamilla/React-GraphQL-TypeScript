@@ -12,11 +12,7 @@ import { createUrqlClient } from '../../utils/createUrqlClient';
 import { toErrorMap } from '../../utils/toErrorMap';
 import NextLink from 'next/link';
 
-interface tokenProps {
-  token: string;
-}
-
-const ChangePassword: NextPage<tokenProps> = ({ token }) => {
+const ChangePassword: NextPage = ({}) => {
   const router = useRouter();
   const [, changePassword] = useChangePasswordMutation();
   const [tokenError, setTokenError] = useState('');
@@ -26,7 +22,8 @@ const ChangePassword: NextPage<tokenProps> = ({ token }) => {
         initialValues={{ newPassword: '' }}
         onSubmit={async (values, { setErrors }) => {
           const response = await changePassword({
-            token,
+            token:
+              typeof router.query.token === 'string' ? router.query.token : '',
             newPassword: values.newPassword,
           });
           // if there is an error use custom error map to handle token errors
@@ -74,12 +71,6 @@ const ChangePassword: NextPage<tokenProps> = ({ token }) => {
       </Formik>
     </Wrapper>
   );
-};
-// special next.js function that allows getting any query parameters and pass it to a function
-ChangePassword.getInitialProps = ({ query }) => {
-  return {
-    token: query.token as string,
-  };
 };
 
 // set ssr to false because getInitialProps may set ssr on
