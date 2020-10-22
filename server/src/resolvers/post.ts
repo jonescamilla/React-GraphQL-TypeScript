@@ -4,11 +4,13 @@ import {
   Arg,
   Ctx,
   Field,
+  FieldResolver,
   InputType,
   Int,
   Mutation,
   Query,
   Resolver,
+  Root,
   UseMiddleware,
 } from 'type-graphql';
 import { Post } from '../entities/Post';
@@ -22,7 +24,7 @@ class PostInput {
   text: string;
 }
 
-@Resolver()
+@Resolver(Post)
 export class PostResolver {
   // to set the type for type-graphql of an array you wrap the type in square brackets
   @Query(() => [Post])
@@ -41,7 +43,7 @@ export class PostResolver {
       .take(realLimit);
     // if we are passed in a cursor then we will add a where clause to our query builder
     if (cursor) {
-      // if it is 
+      // if it is
       qb.where('"createdAt" < :cursor', { cursor: new Date(parseInt(cursor)) });
     }
     // return query at the end
@@ -83,5 +85,11 @@ export class PostResolver {
   async deletePost(@Arg('id') id: number): Promise<Boolean> {
     await Post.delete(id);
     return false;
+  }
+
+  @FieldResolver(() => String)
+  textSnippet(@Root() root: Post) {
+    // set up a text snippet in the back end
+    return root.text.slice(0, 50);
   }
 }
