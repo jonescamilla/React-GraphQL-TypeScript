@@ -4,11 +4,16 @@ import Layout from '../components/Layout';
 import { usePostsQuery } from '../generated/graphql';
 import { createUrqlClient } from '../utils/createUrqlClient';
 import NextLink from 'next/link';
-import React from 'react';
+import React, { useState } from 'react';
 
 const index = () => {
+  const [variables, setVariables] = useState({
+    limit: 10,
+    cursor: null as null | string,
+  });
   const [{ data, fetching }] = usePostsQuery({
-    variables: { limit: 10 },
+    // variables set to variables from above
+    variables,
   });
   // if we are not loading and we did not receive any data
   if (!fetching && !data) return <div>query failed</div>;
@@ -41,7 +46,18 @@ const index = () => {
       }
       {data ? (
         <Flex>
-          <Button isLoading={fetching} m="auto" my={4}>
+          <Button
+            onClick={() => {
+              setVariables({
+                limit: variables.limit,
+                // grab the latest post and use its createdAt as a cursor position
+                cursor: data.posts[data.posts.length - 1].createdAt,
+              });
+            }}
+            isLoading={fetching}
+            m="auto"
+            my={4}
+          >
             Load More
           </Button>
         </Flex>
