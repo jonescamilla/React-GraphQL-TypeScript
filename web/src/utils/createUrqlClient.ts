@@ -1,4 +1,4 @@
-import { cacheExchange, NullArray, Resolver } from '@urql/exchange-graphcache';
+import { cacheExchange, Resolver } from '@urql/exchange-graphcache';
 import { dedupExchange, fetchExchange, stringifyVariables } from 'urql';
 import {
   LoginMutation,
@@ -35,9 +35,16 @@ const cursorPagination = (): Resolver => {
 
     if (size === 0) return undefined;
 
+    const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
+    // check cache
+    const isInCache = cache.resolveFieldByKey(entityKey, fieldKey);
+    // pass boolean to info.partial based on cache check above
+    info.partial = !isInCache;
+    // combine the results
     const results = fieldInfos.reduce((acc: string[], fi) => {
-      const data = cache.resolveFieldByKey(entityKey, fi.fieldKey) as string[];
-      acc.push(...data);
+      acc.push(
+        ...(cache.resolveFieldByKey(entityKey, fi.fieldKey) as string[])
+      );
       return acc;
     }, []);
 
