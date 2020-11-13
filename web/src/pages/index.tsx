@@ -50,6 +50,7 @@ const index = () => {
             onClick={() => {
               setVariables({
                 limit: variables.limit,
+                // grab the latest post and use its createdAt as a cursor position
                 cursor: data.posts[data.posts.length - 1].createdAt,
               });
             }}
