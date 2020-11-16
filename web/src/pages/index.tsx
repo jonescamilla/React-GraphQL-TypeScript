@@ -28,7 +28,7 @@ const index = () => {
       </Flex>
       <br />
       {
-        // if there is no data display loading...
+        // if there is no data AND actively fetching data display "loading..."
         !data && fetching ? (
           <div>loading...</div>
         ) : (
