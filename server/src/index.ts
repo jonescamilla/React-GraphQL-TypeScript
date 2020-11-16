@@ -20,6 +20,7 @@ import { User } from './entities/User';
 import path from 'path';
 
 const main = async () => {
+  // const _conn = 
   await createConnection({
     type: 'postgres',
     database: 'lireddit2',
@@ -32,7 +33,7 @@ const main = async () => {
   });
 
   // await Post.delete({});
-  // await conn.runMigrations();
+  // await _conn.runMigrations();
   
   // initiate express server
   const app = express();
