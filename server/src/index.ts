@@ -31,7 +31,9 @@ const main = async () => {
     entities: [Post, User],
   });
 
+  // await Post.delete({});
   // await conn.runMigrations();
+  
   // initiate express server
   const app = express();
   // redis implementation
