@@ -8,6 +8,7 @@ import {
   InputType,
   Int,
   Mutation,
+  ObjectType,
   Query,
   Resolver,
   Root,
@@ -24,30 +25,46 @@ class PostInput {
   text: string;
 }
 
+@ObjectType()
+class PaginatedPosts {
+  @Field(() => [Post])
+  posts: Post[];
+  @Field()
+  hasMore: boolean;
+}
+
 @Resolver(Post)
 export class PostResolver {
   // to set the type for type-graphql of an array you wrap the type in square brackets
-  @Query(() => [Post])
+  @Query(() => PaginatedPosts)
   async posts(
     @Arg('limit', (_type) => Int) limit: number,
     // will be taking in the date of the posts last rendered
     @Arg('cursor', (_type) => String, { nullable: true }) cursor: string | null
-  ): Promise<Post[]> {
+  ): Promise<PaginatedPosts> {
     // set a hard limit of fifty
     const realLimit = Math.min(50, limit);
+    const realLimitPlusOne = realLimit + 1;
     const qb = getConnection()
       .getRepository(Post)
       .createQueryBuilder('p')
       // wrap in single quotes to send the sting with the quotes else the sting gets auto-edited
       .orderBy('"createdAt"', 'DESC')
-      .take(realLimit);
+      .take(realLimitPlusOne);
     // if we are passed in a cursor then we will add a where clause to our query builder
     if (cursor) {
       // if it is
       qb.where('"createdAt" < :cursor', { cursor: new Date(parseInt(cursor)) });
     }
-    // return query at the end
-    return qb.getMany();
+
+    const posts = await qb.getMany();
+
+    return {
+      // return query at the end
+      posts: posts.slice(0, realLimit),
+      // if the posts.length = realLimit then there are most posts to read
+      hasMore: posts.length === realLimitPlusOne,
+    };
   }
 
   // to set the type or potentially null type-graphql has an object with options
